@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Guess your Child Height</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Guess your Child Height">
+  <meta name="author" content="bm4589gw">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="libraries/widgets/bootstrap/css/bootstrap.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Guess your Child Height</h1>
+    <h2>galton data set</h2>
+    <p>bm4589gw<br/>Developing Data Products Part2 - Reproducible Pitch Presentation</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Locations for the deployed App</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>Shiny Application - Part 1</h3>
+
+<ul>
+<li>Shiny App that allows you to Guess your Childs height.</li>
+<li>URL: <em><a href="https://bm4589gh.shinyapps.io/developingdataproducts/">https://bm4589gh.shinyapps.io/developingdataproducts/</a></em></li>
+<li>ui.R, server.R, README.md</li>
+</ul>
+
+<h3>Reproducible Pitch Presentation - Part 2</h3>
+
+<ul>
+<li>URL: <em><a href="https://github.com/bm4589gh/DevelopingDataProducts/tree/master/slidify/index.html">https://github.com/bm4589gh/DevelopingDataProducts/tree/master/slidify/index.html</a></em></li>
+<li>index.Rmd, index.md, index.html</li>
+</ul>
+
+<h3>Source code located on the @Github repository.</h3>
+
+<pre><code>git clone https://github.com/bm4589gh/developingdataproducts.git
+
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>The galton dataset</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>The table above gives data based on the famous 1885 study of Francis Galton exploring the relationship between the heights of adult children and the heights of their parents.</li>
+</ul>
+
+<h3>Source <a href="http://www.math.uah.edu/stat/data/Galton.html">http://www.math.uah.edu/stat/data/Galton.html</a></h3>
+
+<pre><code class="r"># install.packages(&quot;HistData&quot;)
+library(HistData)
+data(Galton)
+head(Galton,3)
+</code></pre>
+
+<pre><code>##   parent child
+## 1   70.5  61.7
+## 2   68.5  61.7
+## 3   65.5  61.7
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Layout - galton Child-Parent Height dataset</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>** data frame with 928 observations of 2 variables.**</p>
+
+<pre><code>     child           parent     
+ Min.   :61.70   Min.   :64.00  
+ 1st Qu.:66.20   1st Qu.:67.50  
+ Median :68.20   Median :68.50  
+ Mean   :68.09   Mean   :68.31  
+ 3rd Qu.:70.20   3rd Qu.:69.50  
+ Max.   :73.70   Max.   :73.00  
+
+</code></pre>
+
+<h2>Using the App</h2>
+
+<p>Select a Parent Height from the drop down and you can see the associated average of Child Heights for that Parent Height.  The Parent and Child Heights will show as lines on the histogram of Child Heights.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Code - ui.R and server.R</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <pre><code>ui.R
+library(shiny)
+
+shinyUI(pageWithSidebar(
+ headerPanel(&quot;Example plot&quot;),
+ sidebarPanel(
+  sliderInput(&#39;ht&#39;, &#39;Select Parent Height&#39;,
+  value = 66.5, min = 63.5, 
+  max = 73.5, step = 0.5)
+ ),
+ mainPanel(
+  plotOutput(&#39;newHist&#39;)
+)))
+
+Note: Left box is centered align 
+      due to known slidify bug.
+</code></pre>
+
+</div>
+<div style='float:right;width:48%;'>
+  <pre><code>server.R
+library(shiny)
+library(data.table)
+library(UsingR)
+data(galton)
+shinyServer(
+ function(input, output) {
+  output$newHist &lt;- renderPlot({
+   hist(galton$child, xlab=&#39;Child height&#39;, 
+    col=&#39;lightblue&#39;,main=&#39;Histogram&#39;)
+    ht &lt;- input$ht
+    lines(c(ht, ht), c(0, 200),col=&quot;red&quot;,lwd=5)
+    dt &lt;- data.table(galton, key=&quot;parent&quot;)
+    cht &lt;- round(dt[parent == ht,mean(child)],1)
+    text(63, 150, paste(&quot;Parent Height = &quot;, ht))
+    text(63, 140, paste(&quot;Child Height = &quot;, cht))
+})})
+
+</code></pre>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Locations for the deployed App'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='The galton dataset'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Layout - galton Child-Parent Height dataset'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Code - ui.R and server.R'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  <script src="libraries/widgets/bootstrap/js/bootstrap.min.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootbox.min.js"></script>
+
+  <script>  
+  $(function (){ 
+    $("#example").popover(); 
+    $("[rel='tooltip']").tooltip(); 
+  });  
+  </script>  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
