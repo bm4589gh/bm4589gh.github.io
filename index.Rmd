@@ -6,7 +6,7 @@ job         : Developing Data Products Part2 - Reproducible Pitch Presentation
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
 hitheme     : tomorrow      # 
-widgets     : [bootstrap]   # {mathjax, quiz, bootstrap}
+widgets     : []   # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 ---
@@ -29,7 +29,7 @@ git clone https://github.com/bm4589gh/developingdataproducts.git
 
 ```
 
---- 
+---  .class #id
 
 ## The galton dataset
 
@@ -46,7 +46,7 @@ head(Galton,3)
 
 ```
 
---- 
+---  .class #id
 
 ## Layout - galton Child-Parent Height dataset
 
@@ -74,7 +74,6 @@ Select a Parent Height from the drop down and you can see the associated average
 
 ``` 
 ui.R
-library(shiny)
 
 shinyUI(pageWithSidebar(
  headerPanel("Example plot"),
