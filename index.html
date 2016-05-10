@@ -84,7 +84,12 @@
 
 <pre><code class="r"># install.packages(&quot;HistData&quot;)
 library(HistData)
-data(Galton)
+</code></pre>
+
+<pre><code>## Warning: package &#39;HistData&#39; was built under R version 3.2.5
+</code></pre>
+
+<pre><code class="r">data(Galton)
 head(Galton,3)
 </code></pre>
 
@@ -130,18 +135,18 @@ head(Galton,3)
   <article data-timings="">
     
 <div style='float:left;width:48%;' class='centered'>
-  <pre><code>ui.R
+  <pre><code>ui.R - Core parts
 
-shinyUI(pageWithSidebar(
- headerPanel(&quot;Example plot&quot;),
- sidebarPanel(
-  sliderInput(&#39;ht&#39;, &#39;Select Parent Height&#39;,
-  value = 66.5, min = 63.5, 
-  max = 73.5, step = 0.5)
- ),
- mainPanel(
-  plotOutput(&#39;newHist&#39;)
-)))
+parentHeights &lt;- as.list(sort(unique(galton$parent)))
+shinyUI(fluidPage(titlePanel
+ (&quot;Guess your Child Height based on your own height&quot;),
+ sidebarLayout(sidebarPanel(selectInput(
+ &quot;parentHeight&quot;, label = h4(&quot;Parent Height:&quot;),
+ choices = parentHeights, selected = 66.5) ),
+ mainPanel(tabsetPanel(type = &quot;tabs&quot;,
+ tabPanel(&quot;Histogram&quot;, br(), plotOutput(&quot;newHist&quot;) ),
+ tabPanel(&quot;Help&quot;, br(), h3(&quot;What&#39;s your guess?&quot;),
+ rest of help text) ) ) ) ) )
 
 Note: Left box is centered align 
       due to known slidify bug.
@@ -155,17 +160,18 @@ library(data.table)
 library(UsingR)
 data(galton)
 shinyServer(
- function(input, output) {
-  output$newHist &lt;- renderPlot({
-   hist(galton$child, xlab=&#39;Child height&#39;, 
-    col=&#39;lightblue&#39;,main=&#39;Histogram&#39;)
-    ht &lt;- input$ht
-    lines(c(ht, ht), c(0, 200),col=&quot;red&quot;,lwd=5)
-    dt &lt;- data.table(galton, key=&quot;parent&quot;)
-    cht &lt;- round(dt[parent == ht,mean(child)],1)
-    text(63, 150, paste(&quot;Parent Height = &quot;, ht))
-    text(63, 140, paste(&quot;Child Height = &quot;, cht))
-})})
+function(input, output) {
+ output$newHist &lt;- renderPlot({
+ hist(galton$child, xlab=&#39;Child Heights&#39;, 
+ col=&#39;lightblue&#39;,main=&#39;Histogram&#39;)
+ ht &lt;- input$parentHeight
+ dt &lt;- data.table(galton, key=&quot;parent&quot;)
+ cht &lt;- round(dt[parent == ht,mean(child)],1)
+ lines(c(ht, ht), c(0, 200),col=&quot;blue&quot;,lwd=2)
+ lines(c(cht, cht), c(0, 200),col=&quot;red&quot;,lwd=2)
+ text(63, 150, paste(&quot;Parent Height (blue) = &quot;, ht))
+ text(63, 140, paste(&quot;Avg Child Height (red) = &quot;, cht))
+}) } )
 
 </code></pre>
 

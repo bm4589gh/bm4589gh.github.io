@@ -42,6 +42,13 @@ git clone https://github.com/bm4589gh/developingdataproducts.git
 ```r
 # install.packages("HistData")
 library(HistData)
+```
+
+```
+## Warning: package 'HistData' was built under R version 3.2.5
+```
+
+```r
 data(Galton)
 head(Galton,3)
 ```
@@ -80,19 +87,19 @@ Select a Parent Height from the drop down and you can see the associated average
 *** =left
 
 ``` 
-ui.R
+ui.R - Core parts
 
-shinyUI(pageWithSidebar(
- headerPanel("Example plot"),
- sidebarPanel(
-  sliderInput('ht', 'Select Parent Height',
-  value = 66.5, min = 63.5, 
-  max = 73.5, step = 0.5)
- ),
- mainPanel(
-  plotOutput('newHist')
-)))
-
+parentHeights <- as.list(sort(unique(galton$parent)))
+shinyUI(fluidPage(titlePanel
+ ("Guess your Child Height based on your own height"),
+ sidebarLayout(sidebarPanel(selectInput(
+ "parentHeight", label = h4("Parent Height:"),
+ choices = parentHeights, selected = 66.5) ),
+ mainPanel(tabsetPanel(type = "tabs",
+ tabPanel("Histogram", br(), plotOutput("newHist") ),
+ tabPanel("Help", br(), h3("What's your guess?"),
+ rest of help text) ) ) ) ) )
+              
 Note: Left box is centered align 
       due to known slidify bug.
 ```
@@ -104,17 +111,18 @@ library(data.table)
 library(UsingR)
 data(galton)
 shinyServer(
- function(input, output) {
-  output$newHist <- renderPlot({
-   hist(galton$child, xlab='Child height', 
-    col='lightblue',main='Histogram')
-    ht <- input$ht
-    lines(c(ht, ht), c(0, 200),col="red",lwd=5)
-    dt <- data.table(galton, key="parent")
-    cht <- round(dt[parent == ht,mean(child)],1)
-    text(63, 150, paste("Parent Height = ", ht))
-    text(63, 140, paste("Child Height = ", cht))
-})})
+function(input, output) {
+ output$newHist <- renderPlot({
+ hist(galton$child, xlab='Child Heights', 
+ col='lightblue',main='Histogram')
+ ht <- input$parentHeight
+ dt <- data.table(galton, key="parent")
+ cht <- round(dt[parent == ht,mean(child)],1)
+ lines(c(ht, ht), c(0, 200),col="blue",lwd=2)
+ lines(c(cht, cht), c(0, 200),col="red",lwd=2)
+ text(63, 150, paste("Parent Height (blue) = ", ht))
+ text(63, 140, paste("Avg Child Height (red) = ", cht))
+}) } )
 
 ```
 *** =fullwidth
